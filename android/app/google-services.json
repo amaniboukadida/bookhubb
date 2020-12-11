@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "401232314751",
+    "project_id": "dev-mobile-a7316",
+    "storage_bucket": "dev-mobile-a7316.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401232314751:android:20c257b745640e205d1a4a",
+        "android_client_info": {
+          "package_name": "com.lbronze.bookhub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "401232314751-kl0acr2sgtbanutqlj73es40eb2tvqfr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlKITJRjmn9Et_SLGUJpGVR34LxOMysP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401232314751-kl0acr2sgtbanutqlj73es40eb2tvqfr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
