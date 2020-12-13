@@ -38,11 +38,11 @@ class AuthService
     }
   }
   //register in wih email & password
-  Future registerWithEmail(String email, String password) async{
+  Future registerWithEmail(String email, String username, String password, String location) async{
     try{
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email,password: password);
       User user = result.user;
-      await DataBaseService(uid : user.uid).updateUserData("Achraf affes",email, password, "tunis");
+      await DataBaseService(uid : user.uid).updateUserData(username ,email, password, location);
       return _userFromFireBaseUser(user);
     }on FirebaseAuthException catch(e){
       print(e.toString());

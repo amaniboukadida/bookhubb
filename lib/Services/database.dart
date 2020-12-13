@@ -3,6 +3,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 class DataBaseService{
   //collection reference
   final CollectionReference userCollection =  FirebaseFirestore.instance.collection("users");
+  final CollectionReference bookCollection =  FirebaseFirestore.instance.collection("books");
   
   final String uid;
   DataBaseService({this.uid});
@@ -11,6 +12,15 @@ class DataBaseService{
       "username" : username,
       "password" : password,
       "email" : email,
+      "location" : location,
+    });
+  }
+  Future updateBooksData(String title, String bookWriter, String pageNumbers, String genre, String location) async{
+    return await bookCollection.doc().set({
+      "title" : title,
+      "bookWriter" : bookWriter,
+      "pageNumbers" : pageNumbers,
+      "genre" : genre,
       "location" : location,
     });
   }

@@ -1,3 +1,4 @@
+import 'package:bookhub/Screens/Home/EditProfile.dart';
 import 'package:bookhub/Services/Auth.dart';
 import 'package:bookhub/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,8 @@ class UserProfile extends StatefulWidget {
   String email = "";
   String location = "";
   bool userDataRetrieved = false;
+  bool editProfileOn = false;
+  bool loading = false;
   UserProfile({this.auth});
   _UserProfileState createState() => _UserProfileState();
 }
@@ -18,7 +21,6 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
-    
     final user = Provider.of<User_>(context);
     final users = Provider.of<CollectionReference>(context);
     if(!widget.userDataRetrieved)users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot) {
@@ -191,7 +193,9 @@ class _UserProfileState extends State<UserProfile> {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: (){
-
+                    Navigator.push(context, MaterialPageRoute(
+                    builder:(_)=>EditProfile(users: users, user: user,)
+                    ));
                   },
                 ),
                 Padding(
