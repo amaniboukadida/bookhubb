@@ -112,7 +112,7 @@ class _Sign_inState extends State<Sign_in> {
                   FlatButton(
                     textColor: Colors.blue,
                     child: Text(
-                      'Sign in',
+                      'Sign up',
                       style: TextStyle(fontSize: 20),
                     ),
                     onPressed: () {

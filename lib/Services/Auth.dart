@@ -1,21 +1,37 @@
 import 'package:bookhub/Services/database.dart';
 import 'package:bookhub/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:firebase_auth/firebase_auth.dart";
 
 class AuthService
 {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  User_ _userFromFireBaseUser(User user)
+  final CollectionReference users = DataBaseService().userCollection; 
+  String username;
+  String email;
+  String location;
+  String password;
+  String uid;
+  User_ _userFromFireBaseUser(User user,String email,String password,String location,String username)
   {
-    return user != null ? User_(uid: user.uid) : null;
+    return user != null ? User_(uid: user.uid,email: email,password: password,location: location,username: username) : null;
   }
   Stream<User_> get user{
+    users.doc(uid).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        username = documentSnapshot.get("username");
+        email = documentSnapshot.get("email");
+        location = documentSnapshot.get("location");
+        password = documentSnapshot.get("password");
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
     return _auth.authStateChanges()
-    .map((User user) => _userFromFireBaseUser(user));
+    .map((User user) => _userFromFireBaseUser(user,email,password,location,username));
   }
   //sign in anonymous
-  Future signInAnon() async
+  /*Future signInAnon() async
   {
     try{
       UserCredential result = await _auth.signInAnonymously();
@@ -25,13 +41,24 @@ class AuthService
       print(e.toString());
       return null;
     }
-  }
+  }*/
   //sign in wih email & password
   Future signInWithEmail(String email, String password) async{
     try{
       UserCredential result = await _auth.signInWithEmailAndPassword(email: email,password: password);
       User user = result.user;
-      return _userFromFireBaseUser(user);
+      uid = user.uid;
+      users.doc(uid).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        username = documentSnapshot.get("username");
+        email = documentSnapshot.get("email");
+        location = documentSnapshot.get("location");
+        password = documentSnapshot.get("password");
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
+      return _userFromFireBaseUser(user,email,password,location,username);
     }on FirebaseAuthException catch(e){
       print(e.toString());
       return null;
@@ -42,8 +69,9 @@ class AuthService
     try{
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email,password: password);
       User user = result.user;
+      uid = user.uid;
       await DataBaseService(uid : user.uid).updateUserData(username ,email, password, location);
-      return _userFromFireBaseUser(user);
+      return _userFromFireBaseUser(user,email,password,location,username);
     }on FirebaseAuthException catch(e){
       print(e.toString());
       return null;

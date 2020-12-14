@@ -20,7 +20,7 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("BookHub"),
+        title: Text("Edit profile"),
       ),
       body: Form(
         key : _formKey,

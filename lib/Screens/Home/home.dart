@@ -1,3 +1,4 @@
+import 'package:bookhub/Screens/Home/addBook.dart';
 import 'package:bookhub/Screens/Home/userprofile.dart';
 import 'package:bookhub/Services/Auth.dart';
 import 'package:bookhub/models/user.dart';
@@ -19,6 +20,7 @@ class _HomeState extends State<Home> {
   List test = [5,5,5,5,5,5,5,5];
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User_>(context);
     return Provider<CollectionReference>.value(
       value: DataBaseService().userCollection,
       child: Scaffold(
@@ -64,7 +66,7 @@ class _HomeState extends State<Home> {
           Stack(
             children: [
               Container(
-                height : MediaQuery.of(context).size.height-(MediaQuery.of(context).padding.top + kToolbarHeight),
+                height : MediaQuery.of(context).size.height-(MediaQuery.of(context).padding.top + kToolbarHeight + MediaQuery.of(context).viewInsets.bottom),
                 child: ListView(
                   children: [
                     SizedBox(height : 70),
@@ -155,7 +157,15 @@ class _HomeState extends State<Home> {
               ),
             ]
           ),
-        ],)
+        ],),   
+        floatingActionButton: userprofileOn?null:FloatingActionButton(
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(
+            builder:(_)=>AddBook(books : DataBaseService().bookCollection,user : user)
+            ));
+          },
+          child: Icon(Icons.add),
+        )
       ),
     );
   }
