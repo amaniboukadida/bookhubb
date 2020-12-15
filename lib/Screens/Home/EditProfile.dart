@@ -72,6 +72,8 @@ class _EditProfileState extends State<EditProfile> {
               onPressed: (){
                 if(_formKey.currentState.validate()){
                   widget.users.doc((widget.user.uid)).update({"username":widget.username,"location":widget.location});
+                  widget.user.username = widget.username;
+                  widget.user.location = widget.location;
                   Navigator.pop(context);
                 }
               },

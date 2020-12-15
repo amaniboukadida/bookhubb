@@ -37,7 +37,7 @@ class _Sign_inState extends State<Sign_in> {
                     height: 250,
                     child: Image(
                       fit: BoxFit.cover,
-                      image:NetworkImage("https://media.npr.org/assets/img/2020/09/18/gettyimages-1170941183-c1e33a9a2b274d5381f14d18f71db5ee0342aec3-s800-c85.jpg")
+                      image:AssetImage("assets/signIn.jpg")
                     ),
                   )),
               Container(

@@ -54,7 +54,7 @@ class _RegisterState extends State<Register> {
                     height: 250,
                     child: Image(
                       fit: BoxFit.cover,
-                      image:NetworkImage("https://thewritelife.com/wp-content/uploads/2019/08/How-to-format-a-book.jpg")
+                      image:AssetImage("assets/register.jpg")
                     ),
                   )),
               Container(
@@ -170,7 +170,6 @@ class _RegisterState extends State<Register> {
                       loading = false;
                       setState(() {
                         error = "please supply a valid email address";
-                        print(error);
                       });
                     }else{
                       setState(() {

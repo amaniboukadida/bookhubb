@@ -37,7 +37,7 @@ class _AddBookState extends State<AddBook> {
                     height: 250,
                     child: Image(
                       fit: BoxFit.cover,
-                      image:NetworkImage("https://stamma.org/sites/default/files/styles/lead_image_desktop/public/fields/lead_image/Resources_library_books.jpg?itok=Yj1l-cAs")
+                      image:AssetImage("assets/addBook.jpg")
                     ),
                   )),
               Container(
@@ -123,12 +123,15 @@ class _AddBookState extends State<AddBook> {
                 child: Text('Add book'),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
-                    DataBaseService().updateBooksData(title, author, pageNumbers, category, widget.user.location);
+                    DataBaseService().updateBooksData(title, author, pageNumbers, category, widget.user.location, widget.user.uid);
                     Navigator.pop(context);
                   }
                 },
               )
             ),
+            SizedBox(
+              height : MediaQuery.of(context).viewInsets.bottom==0?0:MediaQuery.of(context).viewInsets.bottom
+            )
             ]
           )
         )

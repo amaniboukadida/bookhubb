@@ -17,16 +17,6 @@ class AuthService
     return user != null ? User_(uid: user.uid,email: email,password: password,location: location,username: username) : null;
   }
   Stream<User_> get user{
-    users.doc(uid).get().then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        username = documentSnapshot.get("username");
-        email = documentSnapshot.get("email");
-        location = documentSnapshot.get("location");
-        password = documentSnapshot.get("password");
-      } else {
-        print('Document does not exist on the database');
-      }
-    });
     return _auth.authStateChanges()
     .map((User user) => _userFromFireBaseUser(user,email,password,location,username));
   }

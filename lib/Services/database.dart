@@ -15,13 +15,14 @@ class DataBaseService{
       "location" : location,
     });
   }
-  Future updateBooksData(String title, String author, int pageNumbers, String genre, String location) async{
+  Future updateBooksData(String title, String author, int pageNumbers, String genre, String location, String uid) async{
     return await bookCollection.doc().set({
       "title" : title,
       "author" : author,
       "pageNumbers" : pageNumbers,
       "genre" : genre,
       "location" : location,
+      "user_uid" : uid,
     });
   }
 }
