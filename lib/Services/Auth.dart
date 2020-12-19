@@ -12,11 +12,11 @@ class AuthService
   String location;
   String password;
   String uid;
-  User_ _userFromFireBaseUser(User user,String email,String password,String location,String username)
+  UserModel _userFromFireBaseUser(User user,String email,String password,String location,String username)
   {
-    return user != null ? User_(uid: user.uid,email: email,password: password,location: location,username: username) : null;
+    return user != null ? UserModel(uid: user.uid,email: email,password: password,location: location,username: username) : null;
   }
-  Stream<User_> get user{
+  Stream<UserModel> get user{
     return _auth.authStateChanges()
     .map((User user) => _userFromFireBaseUser(user,email,password,location,username));
   }
@@ -60,7 +60,7 @@ class AuthService
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email,password: password);
       User user = result.user;
       uid = user.uid;
-      await DataBaseService(uid : user.uid).updateUserData(username ,email, password, location);
+      await DataBaseService(uid : user.uid).updateUserData(username ,email, password, location, "");
       return _userFromFireBaseUser(user,email,password,location,username);
     }on FirebaseAuthException catch(e){
       print(e.toString());

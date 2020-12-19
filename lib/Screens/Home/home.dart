@@ -1,16 +1,17 @@
 import 'package:bookhub/Screens/Home/addBook.dart';
 import 'package:bookhub/Screens/Home/userprofile.dart';
 import 'package:bookhub/Services/Auth.dart';
+import 'package:bookhub/models/Book.dart';
 import 'package:bookhub/models/user.dart';
-import 'package:bookhub/shared/loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import "package:bookhub/Services/database.dart";
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import "package:provider/provider.dart";
 
+// ignore: must_be_immutable
 class Home extends StatefulWidget {
-  User_ user;
+  UserModel user;
   Home({this.user});
   @override
   _HomeState createState() => _HomeState();
@@ -20,93 +21,22 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   bool userprofileOn = false;
   bool searchBarOn = false;
-   
-  Future<String> getOwnerFromBook(String uid) async{
-    String owner = await
-      DataBaseService().userCollection.doc(uid).get().then((value){
-        if (value.exists) {
-          return value.get("username");
-        } else {
-          return "unkown";
-        }
-      });
-    return owner;
-  }
 
   Future<List<Widget>> buildBooks() async{
     List<Widget> test = await DataBaseService().bookCollection.limit(20).get().then((value)
     {
       List<Widget> test=[];
-      String author;
-      String title;
-      String category;
-      String location;
       for (var doc in value.docs) {
-        author = doc.get("author");
-        title = doc.get("title");
-        category = doc.get("genre");
-        location = doc.get("location");
-        test.add(Container(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10,10,10,0),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              height: 150,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.indigo[50],
-              child: Row(
-                children: [
-                  Container(
-                    width: 120,
-                    height: 150,
-                    child : Image(
-                      fit: BoxFit.cover,
-                      image: AssetImage("assets/addBook.jpg"),
-                    )
-                  ),
-                  SizedBox(width : 10),
-                  Container(
-                    width: 190,
-                    child: Column( crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                      Row(children: [
-                        Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(title.length>20?title.substring(0,20)+"...":title)
-                      ],),
-                      Row(children: [
-                        Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(author.length>17?author.substring(0,17)+"...":author)
-                      ],),
-                      Row(children: [
-                        Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(category.length>16?category.substring(0,16)+"...":category)
-                      ],),
-                      Row(children: [
-                        Text("Number of pages : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text((doc.get("pageNumbers").toString()))
-                      ],),
-                      Row(children: [
-                        Text("Location : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(location.length>17?location.substring(0,17)+"...":location)
-                      ],),
-                      SizedBox(height : 2),
-                      Container(
-                        width: 200,
-                        child: FlatButton(onPressed: 
-                        (){
-                          
-                        }, 
-                        color: Colors.blue,
-                        child: Text("Contact owner",style: TextStyle(color: Colors.white),)),
-                      )
-                    ],),
-                  ),
-                  
-                ],
-              ),
-            ),
-          ),
-        ));
+        test.add(new Book(
+          author: doc.get("author"), 
+          title: doc.get("title"), 
+          category: doc.get("genre"), 
+          location: doc.get("location"),
+          docUid: doc.id, 
+          ownerUid: doc.get("user_uid"), 
+          pageNumber: doc.get("pageNumbers"),
+          screenId: 0,)//homescreen
+        );
       }
       return test;
     });
@@ -114,7 +44,7 @@ class _HomeState extends State<Home> {
   }
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User_>(context);
+    final user = Provider.of<UserModel>(context);
     return Provider<CollectionReference>.value(
       value: DataBaseService().userCollection,
       child: Scaffold(

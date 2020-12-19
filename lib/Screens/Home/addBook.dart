@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:bookhub/Services/database.dart';
 import 'package:bookhub/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import "package:image/image.dart" as Img;
+import 'package:image_picker/image_picker.dart';
+// ignore: must_be_immutable
 class AddBook extends StatefulWidget {
-  CollectionReference books;
-  User_ user;
+  Widget currentPicture;
+  String imageUrl;
+  final CollectionReference books;
+  UserModel user;
   AddBook({this.user,this.books});
   @override
   _AddBookState createState() => _AddBookState();
@@ -17,8 +25,66 @@ class _AddBookState extends State<AddBook> {
   String author;
   String category;
   int pageNumbers;
+  final picker = ImagePicker();
+  UploadTask uploadTask;
+  File sampleImage;
+
   @override
+
+ ImageProvider checkURL(String url)
+  {
+    try {
+      ImageProvider test = NetworkImage(url);
+      return test;
+    } catch (e) {
+      ImageProvider test = AssetImage("assets/userProfile.jpg");
+      return test;
+    }
+  }
+
+  Future getImage(String docUid, CollectionReference books) async{
+    String fileName = docUid;
+    Reference storageRef = FirebaseStorage.instance.ref().child("user-sProfiles").child(fileName);
+    // ignore: deprecated_member_use
+    var tempImage = await picker.getImage(source: ImageSource.gallery,maxHeight:  400 , maxWidth: 400);
+    sampleImage = File(tempImage.path);
+    if(sampleImage!=null){
+      if(!(widget.imageUrl=="" || widget.imageUrl==null)){
+        await storageRef.delete();
+        await books.doc(docUid).update({"imageUrl":null});
+      }
+      uploadTask = storageRef.putFile(sampleImage);
+      uploadTask.snapshotEvents.listen((event) async {
+        if(event.state==TaskState.success){
+          widget.imageUrl = await storageRef.getDownloadURL();
+          books.doc(docUid).update({"imageUrl":widget.imageUrl}).then((value){
+            print("done !!!!!");
+            setState((){
+              widget.currentPicture = Image(
+                fit: BoxFit.cover,
+                image:checkURL(widget.imageUrl)
+              );
+            });
+          });
+        }else{
+          setState((){
+            widget.currentPicture = Container(
+              color: Colors.blue,
+              child: SpinKitThreeBounce(size: 40,color: Colors.white ,),
+            );
+          });
+        }
+      });
+    }
+  }
+
   Widget build(BuildContext context) {
+    if(!(widget.imageUrl=="" || widget.imageUrl == null)){
+      widget.currentPicture = Image(
+        fit: BoxFit.cover,
+        image:checkURL(widget.imageUrl)
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('AddBook'),
@@ -35,10 +101,7 @@ class _AddBookState extends State<AddBook> {
                   child: Container(
                     width: MediaQuery.of(context).size.width*0.9,
                     height: 250,
-                    child: Image(
-                      fit: BoxFit.cover,
-                      image:AssetImage("assets/addBook.jpg")
-                    ),
+                    child: widget.currentPicture
                   )),
               Container(
                 padding: EdgeInsets.all(10),
@@ -123,7 +186,7 @@ class _AddBookState extends State<AddBook> {
                 child: Text('Add book'),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
-                    DataBaseService().updateBooksData(title, author, pageNumbers, category, widget.user.location, widget.user.uid);
+                    DataBaseService().updateBooksData(title:title, author:author, pageNumbers:pageNumbers, genre:category, location: widget.user.location,uid: widget.user.uid);
                     Navigator.pop(context);
                   }
                 },

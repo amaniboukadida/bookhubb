@@ -1,16 +1,19 @@
+import 'dart:io';
+import "package:firebase_storage/firebase_storage.dart";
 import 'package:bookhub/Screens/Home/EditProfile.dart';
 import 'package:bookhub/Services/Auth.dart';
 import 'package:bookhub/Services/database.dart';
+import 'package:bookhub/models/Book.dart';
 import 'package:bookhub/models/user.dart';
-import 'package:bookhub/shared/loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class UserProfile extends StatefulWidget {
-  @override
   final AuthService auth;
   String username =" ";
   String email = "";
@@ -19,99 +22,114 @@ class UserProfile extends StatefulWidget {
   bool editProfileOn = false;
   bool loading = false;
   UserProfile({this.auth});
+  String imageUrl;
+  @override
   _UserProfileState createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-  @override
+  
+  final picker = ImagePicker();
+  UploadTask uploadTask;
+  File sampleImage;
   Future<List<Widget>> buildBooks(String uid) async{
     List<Widget> test = await DataBaseService().bookCollection.where("user_uid",isEqualTo: uid).get().then((value)
     {
-      print(value.docs.length);
       List<Widget> test=[];
-      String author;
-      String title;
-      String category;
-      String location;
       for (var doc in value.docs) {
-        author = doc.get("author");
-        title = doc.get("title");
-        category = doc.get("genre");
-        location = doc.get("location");
-        test.add(Container(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10,0,0,0),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              height: 110,
-              width: 230,
-              color: Colors.blue[100],
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 100,
-                    child : Image(
-                      fit: BoxFit.cover,
-                      image: AssetImage("assets/addBook.jpg"),
-                    )
-                  ),
-                  SizedBox(width : 10),
-                  Container(
-                    width: 140,
-                    child: Column( crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                      Row(children: [
-                        Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(title.length>12?title.substring(0,12)+"...":title)
-                      ],),
-                      Row(children: [
-                        Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(author.length>9?author.substring(0,9)+"...":author)
-                      ],),
-                      Row(children: [
-                        Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(category.length>8?category.substring(0,8)+"...":category)
-                      ],),
-                      Row(children: [
-                        Text("Nbr of pages : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text((doc.get("pageNumbers").toString()))
-                      ],),
-                      Row(children: [
-                        Text("Location : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(location.length>10?location.substring(0,10)+"...":location)
-                      ],)
-                    ],),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ));
+        test.add(new Book(
+          author: doc.get("author"), 
+          title: doc.get("title"), 
+          category: doc.get("genre"), 
+          location: doc.get("location"),
+          docUid: doc.id, 
+          ownerUid: doc.get("user_uid"), 
+          pageNumber: doc.get("pageNumbers"),
+          screenId: 1,)//Profilescreen
+        );
       }
       return test;
     });
     return test;
   }
+  Future getImage(UserModel user, CollectionReference users) async{
+    String fileName = widget.email.replaceAll("@", "-");
+    Reference storageRef = FirebaseStorage.instance.ref().child("user-sProfiles").child(fileName);
+    // ignore: deprecated_member_use
+    var tempImage = await picker.getImage(source: ImageSource.gallery,maxHeight:  400 , maxWidth: 400);
+    sampleImage = File(tempImage.path);
+    if(sampleImage!=null){
+      if(!(widget.imageUrl=="" || widget.imageUrl==null)){
+        await storageRef.delete();
+        await users.doc((user.uid)).update({"imageProfileUrl":null});
+      }
+      uploadTask = storageRef.putFile(sampleImage);
+      uploadTask.snapshotEvents.listen((event) async {
+        if(event.state==TaskState.success){
+          widget.imageUrl = await storageRef.getDownloadURL();
+          users.doc((user.uid)).update({"imageProfileUrl":widget.imageUrl}).then((value){
+            print("done !!!!!");
+            setState((){
+              user.avatarChild = CircleAvatar(
+                backgroundImage: checkURL(widget.imageUrl),
+                radius: 80,
+              );
+              widget.userDataRetrieved = false;
+            });
+          });
+        }else{
+          setState((){
+            user.avatarChild = CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: SpinKitThreeBounce(size: 40,color: Colors.white ,),
+              radius: 80,
+            );
+          });
+        }
+      });
+    }
+  }
+
+  ImageProvider checkURL(String url)
+  {
+    try {
+      ImageProvider test = NetworkImage(url);
+      return test;
+    } catch (e) {
+      ImageProvider test = AssetImage("assets/userProfile.jpg");
+      return test;
+    }
+  }
+     
+  @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User_>(context);
+    final user = Provider.of<UserModel>(context);
     final users = Provider.of<CollectionReference>(context);
-    if(!widget.userDataRetrieved)users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot) {
+    widget.userDataRetrieved = false;
+    if(!widget.userDataRetrieved)users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot)async {
       if (documentSnapshot.exists) {
+        widget.username = await documentSnapshot.get("username");
+        widget.email = await documentSnapshot.get("email");
+        widget.location = await documentSnapshot.get("location");
+        widget.imageUrl = await documentSnapshot.get("imageProfileUrl");
         setState(() {
-          widget.username = documentSnapshot.get("username");
-          widget.email = documentSnapshot.get("email");
-          widget.location = documentSnapshot.get("location");
           widget.userDataRetrieved = true;
         });
       } else {
         print('Document does not exist on the database');
       }
     });
+    if(!(widget.imageUrl=="" || widget.imageUrl == null)){
+      user.avatarChild = CircleAvatar(
+        backgroundImage: checkURL(widget.imageUrl),
+        radius: 80,
+      );
+    }
     /*for(var doc in users.docs){
       print(doc.id);
     }*/
-    return ListView(
+    return 
+    ListView(
       children: [
         Column(
           crossAxisAlignment : CrossAxisAlignment.start,
@@ -129,11 +147,19 @@ class _UserProfileState extends State<UserProfile> {
                         CircleAvatar(
                           backgroundColor: Colors.blue,
                           radius: 83,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.lightBlue[300],
-                            child: Text(widget.username[0].toUpperCase(),style: TextStyle(color: Colors.white,fontSize: 60,fontFamily: "Times New Roman",fontWeight: FontWeight.bold),),
+                          child: user.avatarChild==null?CircleAvatar(
+                            backgroundColor : Colors.blue[400],
                             radius: 80,
-                          ),
+                            child: Text(
+                              widget.username[0].toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 45,
+                                fontFamily: "Times New Roman",
+                                fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ): user.avatarChild
                         ),
                         Positioned(
                           bottom: 1,
@@ -149,11 +175,13 @@ class _UserProfileState extends State<UserProfile> {
                                 iconSize: 25,
                                 icon: Icon(Icons.add_a_photo_rounded,color: Colors.white,),
                                 color: Colors.black,
-                                onPressed: (){}
-                              ),
+                                onPressed: () async{
+                                  await getImage(user, users);
+                                }
+                              )
                             ),
-                          ),
-                        )
+                          ), 
+                        ),
                       ]
                     ),
                     SizedBox(height : 10),

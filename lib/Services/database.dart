@@ -7,21 +7,23 @@ class DataBaseService{
   
   final String uid;
   DataBaseService({this.uid});
-  Future updateUserData(String username, String email, String password, String location) async{
+  Future updateUserData(String username, String email, String password, String location,String imageProfileUrl) async{
     return await userCollection.doc(uid).set({
       "username" : username,
       "password" : password,
       "email" : email,
       "location" : location,
+      "imageProfileUrl" : imageProfileUrl
     });
   }
-  Future updateBooksData(String title, String author, int pageNumbers, String genre, String location, String uid) async{
+  Future updateBooksData({String title, String author, int pageNumbers, String genre, String location, String uid, String imageUrl}) async{
     return await bookCollection.doc().set({
       "title" : title,
       "author" : author,
       "pageNumbers" : pageNumbers,
       "genre" : genre,
       "location" : location,
+      "imageUrl" : imageUrl,
       "user_uid" : uid,
     });
   }

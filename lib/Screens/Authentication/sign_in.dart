@@ -2,14 +2,14 @@ import 'package:bookhub/Services/Auth.dart';
 import 'package:bookhub/shared/loading.dart';
 import "package:flutter/material.dart";
 
-class Sign_in extends StatefulWidget {
+class SignIn extends StatefulWidget {
   final Function toggelView;
-  Sign_in({this.toggelView});
+  SignIn({this.toggelView});
   @override
-  _Sign_inState createState() => _Sign_inState();
+  _SignInState createState() => _SignInState();
 }
 
-class _Sign_inState extends State<Sign_in> {
+class _SignInState extends State<SignIn> {
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
