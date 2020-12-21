@@ -32,6 +32,8 @@ class _UserProfileState extends State<UserProfile> {
   final picker = ImagePicker();
   UploadTask uploadTask;
   File sampleImage;
+  ScrollController _scrollController = ScrollController();
+  
   Future<List<Widget>> buildBooks(String uid) async{
     List<Widget> test = await DataBaseService().bookCollection.where("user_uid",isEqualTo: uid).get().then((value)
     {
@@ -45,6 +47,7 @@ class _UserProfileState extends State<UserProfile> {
           docUid: doc.id, 
           ownerUid: doc.get("user_uid"), 
           pageNumber: doc.get("pageNumbers"),
+          imageUrl : doc.get("imageUrl"),
           screenId: 1,)//Profilescreen
         );
       }
@@ -68,7 +71,6 @@ class _UserProfileState extends State<UserProfile> {
         if(event.state==TaskState.success){
           widget.imageUrl = await storageRef.getDownloadURL();
           users.doc((user.uid)).update({"imageProfileUrl":widget.imageUrl}).then((value){
-            print("done !!!!!");
             setState((){
               user.avatarChild = CircleAvatar(
                 backgroundImage: checkURL(widget.imageUrl),
@@ -103,6 +105,7 @@ class _UserProfileState extends State<UserProfile> {
      
   @override
   Widget build(BuildContext context) {
+    
     final user = Provider.of<UserModel>(context);
     final users = Provider.of<CollectionReference>(context);
     widget.userDataRetrieved = false;
@@ -232,7 +235,7 @@ class _UserProfileState extends State<UserProfile> {
                       Container(
                         color: Colors.lightBlue[50],
                         width: MediaQuery.of(context).size.width,
-                        height: 130,
+                        height: 150,
                         child : FutureBuilder(
                           future: buildBooks(user.uid),
                           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

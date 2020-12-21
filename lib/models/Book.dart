@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bookhub/Screens/Home/EditBook.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import "package:flutter/material.dart";
@@ -17,7 +18,7 @@ class Book extends StatefulWidget {
   String ownerUid;
   int pageNumber;
   final int screenId; // 0 if home screen, 1 if user profile, 2 if book screen
-  Book({this.author,this.title,this.category,this.location,this.docUid,this.ownerUid,this.pageNumber,this.screenId});
+  Book({this.author,this.title,this.category,this.location,this.docUid,this.ownerUid,this.pageNumber,this.screenId,this.imageUrl});
   @override
   _BookState createState() => _BookState();
 }
@@ -34,14 +35,14 @@ class _BookState extends State<Book> {
       ImageProvider test = NetworkImage(url);
       return test;
     } catch (e) {
-      ImageProvider test = AssetImage("assets/userProfile.jpg");
+      ImageProvider test = AssetImage("assets/addBook.jpg");
       return test;
     }
   }
 
   Future getImage(String docUid, CollectionReference books) async{
     String fileName = docUid;
-    Reference storageRef = FirebaseStorage.instance.ref().child("user-sProfiles").child(fileName);
+    Reference storageRef = FirebaseStorage.instance.ref().child("book-sImages").child(fileName);
     // ignore: deprecated_member_use
     var tempImage = await picker.getImage(source: ImageSource.gallery,maxHeight:  400 , maxWidth: 400);
     sampleImage = File(tempImage.path);
@@ -78,7 +79,7 @@ class _BookState extends State<Book> {
   @override
   Widget build(BuildContext context) {
     switch (widget.screenId) {
-      case 0 : 
+      case 0 : //Home screen
         return Container(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10,10,10,0),
@@ -94,7 +95,7 @@ class _BookState extends State<Book> {
                     height: 150,
                     child : Image(
                       fit: BoxFit.cover,
-                      image: AssetImage("assets/addBook.jpg"),
+                      image: checkURL(widget.imageUrl),
                     )
                   ),
                   SizedBox(width : 10),
@@ -108,7 +109,7 @@ class _BookState extends State<Book> {
                       ],),
                       Row(children: [
                         Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                        Text(widget.author.length>17?widget.author.substring(0,17)+"...":widget.author)
+                        Text(widget.author.length>15?widget.author.substring(0,15)+"...":widget.author)
                       ],),
                       Row(children: [
                         Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
@@ -141,62 +142,89 @@ class _BookState extends State<Book> {
           ),
         );
       break;
-      case 1 : return GestureDetector(
-          onTap: (){
-            //takes the user to edit or remove a book interface
-          },
-            child: Container(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10,0,0,0),
-              child: Container(
-                padding: EdgeInsets.all(10),
-                height: 110,
-                width: 230,
-                color: Colors.blue[100],
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 100,
-                      child : Image(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/addBook.jpg"),
-                      )
-                    ),
-                    SizedBox(width : 10),
-                    Container(
-                      width: 140,
-                      child: Column( crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                        Row(children: [
-                          Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                          Text(widget.title.length>12?widget.title.substring(0,12)+"...":widget.title)
+      case 1 : return Stack(
+          children:[ 
+            Container(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10,0,0,0),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  
+                  height: 130,
+                  width: 250,
+                  color: Colors.blue[100],
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 120,
+                        child : Image(
+                          fit: BoxFit.cover,
+                          image: checkURL(widget.imageUrl),
+                        )
+                      ),
+                      SizedBox(width : 10),
+                      Container(
+                        width: 140,
+                        child: Column( crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                          Row(children: [
+                            Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
+                            Text(widget.title.length>12?widget.title.substring(0,12)+"...":widget.title)
+                          ],),
+                          Row(children: [
+                            Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
+                            Text(widget.author.length>9?widget.author.substring(0,9)+"...":widget.author)
+                          ],),
+                          Row(children: [
+                            Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
+                            Text(widget.category.length>8?widget.category.substring(0,8)+"...":widget.category)
+                          ],),
+                          Row(children: [
+                            Text("Nbr of pages : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
+                            Text(widget.pageNumber.toString())
+                          ],),
+                          Row(children: [
+                            Text("Location : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
+                            Text(widget.location.length>10?widget.location.substring(0,10)+"...":widget.location)
+                          ],)
                         ],),
-                        Row(children: [
-                          Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                          Text(widget.author.length>9?widget.author.substring(0,9)+"...":widget.author)
-                        ],),
-                        Row(children: [
-                          Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                          Text(widget.category.length>8?widget.category.substring(0,8)+"...":widget.category)
-                        ],),
-                        Row(children: [
-                          Text("Nbr of pages : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                          Text(widget.pageNumber.toString())
-                        ],),
-                        Row(children: [
-                          Text("Location : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                          Text(widget.location.length>10?widget.location.substring(0,10)+"...":widget.location)
-                        ],)
-                      ],),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ),
+          Positioned(
+            bottom: 6,
+            right: 6,
+            child: GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(
+                builder:(_)=>EditBook(this.widget)
+                ));
+              },
+              child: Material(
+              color: Colors.transparent,
+              child: Ink(
+                width: 75,
+                height: 30,
+                decoration: ShapeDecoration(
+                  color: Colors.blue,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                ),
+                child : Center(
+                  child: Text(
+                    "Check",
+                    style: TextStyle(fontSize: 13,color: Colors.white),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-        break;
+          ), 
+        )]
+      );
+      break;
     }
     return SizedBox();
   }

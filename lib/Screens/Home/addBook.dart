@@ -10,6 +10,7 @@ import "package:image/image.dart" as Img;
 import 'package:image_picker/image_picker.dart';
 // ignore: must_be_immutable
 class AddBook extends StatefulWidget {
+  bool addBookClicked = false;
   Widget currentPicture;
   String imageUrl;
   final CollectionReference books;
@@ -30,7 +31,7 @@ class _AddBookState extends State<AddBook> {
   File sampleImage;
 
   @override
-
+  
  ImageProvider checkURL(String url)
   {
     try {
@@ -42,49 +43,27 @@ class _AddBookState extends State<AddBook> {
     }
   }
 
-  Future getImage(String docUid, CollectionReference books) async{
-    String fileName = docUid;
-    Reference storageRef = FirebaseStorage.instance.ref().child("user-sProfiles").child(fileName);
+  Future getImage() async{
     // ignore: deprecated_member_use
     var tempImage = await picker.getImage(source: ImageSource.gallery,maxHeight:  400 , maxWidth: 400);
     sampleImage = File(tempImage.path);
-    if(sampleImage!=null){
-      if(!(widget.imageUrl=="" || widget.imageUrl==null)){
-        await storageRef.delete();
-        await books.doc(docUid).update({"imageUrl":null});
-      }
-      uploadTask = storageRef.putFile(sampleImage);
-      uploadTask.snapshotEvents.listen((event) async {
-        if(event.state==TaskState.success){
-          widget.imageUrl = await storageRef.getDownloadURL();
-          books.doc(docUid).update({"imageUrl":widget.imageUrl}).then((value){
-            print("done !!!!!");
-            setState((){
-              widget.currentPicture = Image(
-                fit: BoxFit.cover,
-                image:checkURL(widget.imageUrl)
-              );
-            });
-          });
-        }else{
-          setState((){
-            widget.currentPicture = Container(
-              color: Colors.blue,
-              child: SpinKitThreeBounce(size: 40,color: Colors.white ,),
-            );
-          });
-        }
-      });
-    }
+    setState((){
+      widget.currentPicture = Image(
+        fit: BoxFit.cover,
+        image:FileImage(sampleImage)
+      );
+    });
   }
 
   Widget build(BuildContext context) {
+    
     if(!(widget.imageUrl=="" || widget.imageUrl == null)){
       widget.currentPicture = Image(
         fit: BoxFit.cover,
         image:checkURL(widget.imageUrl)
       );
     }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('AddBook'),
@@ -95,17 +74,43 @@ class _AddBookState extends State<AddBook> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              Container(
+              Stack(
+                children : [Container(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(10),
                   child: Container(
                     width: MediaQuery.of(context).size.width*0.9,
                     height: 250,
-                    child: widget.currentPicture
+                    child: widget.currentPicture==null?Image(image: AssetImage("assets/addBook.jpg"),fit: BoxFit.cover,):widget.currentPicture
                   )),
+                  !widget.addBookClicked?Positioned(
+                    bottom: 1,
+                    right: 1,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink(
+                        decoration: ShapeDecoration(
+                          color: Colors.lightBlue,
+                          shape: CircleBorder(),
+                        ),
+                        child : IconButton(
+                          iconSize: 25,
+                          icon: Icon(Icons.add_a_photo_rounded,color: Colors.white,),
+                          color: Colors.black,
+                          onPressed: () async{
+                            await getImage();
+                          }
+                        )
+                      ),
+                    ), 
+                  ):SizedBox(width:0)
+                  ]
+
+              ),
               Container(
                 padding: EdgeInsets.all(10),
                 child: TextFormField(
+                  readOnly: widget.addBookClicked?true:false,
                   validator: (val){
                     return val.isEmpty? "Enter the book title" : null;
                   },
@@ -123,6 +128,7 @@ class _AddBookState extends State<AddBook> {
               Container(
                 padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child: TextFormField(
+                  readOnly: widget.addBookClicked?true:false,
                   validator: (val){
                     return val.isEmpty? "Enter the book author's name" :null;
                   },
@@ -138,11 +144,13 @@ class _AddBookState extends State<AddBook> {
                   ),
                 ),
               ),
-              Container(
+              widget.addBookClicked?Container(
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: TextFormField(
+                  initialValue: category,
+                  readOnly: true,
                   validator: (val){
-                    return val.isEmpty? "Enter a category" : null;
+                    return val.isEmpty? "Select a category" : null;
                   },
                   onChanged: (val){
                     setState(() {
@@ -152,13 +160,38 @@ class _AddBookState extends State<AddBook> {
                   obscureText: false,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'category',
+                    labelText: "category",
                   ),
+                ),
+              ):
+              Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: DropdownButtonFormField<String>(
+                  validator: (val){
+                    return val.isEmpty? "Select a category" : null;
+                  },
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'category',
+                    ),
+                  items: <String>["Action and adventure","Art/architecture","Business/economics",
+                  "Children's","Crafts/hobbies","Classic","Cookbook","Comic book",
+                  "Dictionary","Encyclopedia","Fantasy","Health/fitness","History","History fiction",
+                  "Humor","Horror","Mystery","Philosophy","Poetry","Political","Religion",
+                  "Romance","Science fiction","Science","Sports","Thriller"
+                  ].map((String value) {
+                    return new DropdownMenuItem<String>(
+                      value: value,
+                      child: new Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (val) {category = val;},
                 ),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: TextFormField(
+                  readOnly: widget.addBookClicked?true:false,
                   keyboardType: TextInputType.number,
                   validator: (val){
                     return val.isEmpty? "Enter the number of pages" : null;
@@ -180,17 +213,41 @@ class _AddBookState extends State<AddBook> {
               height: 50,
               width: 100,
               padding: EdgeInsets.fromLTRB(100, 0, 100, 0),
-              child: RaisedButton(
+              child: !widget.addBookClicked?RaisedButton(
                 textColor: Colors.white,
                 color: Colors.blue,
                 child: Text('Add book'),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
-                    DataBaseService().updateBooksData(title:title, author:author, pageNumbers:pageNumbers, genre:category, location: widget.user.location,uid: widget.user.uid);
-                    Navigator.pop(context);
+                    setState(() {
+                     widget.addBookClicked=true;
+                    }); 
+                    DocumentReference test = await DataBaseService().updateBooksData(title:title, author:author, pageNumbers:pageNumbers, genre:category, location: widget.user.location,uid: widget.user.uid);
+                    Reference storageRef = FirebaseStorage.instance.ref().child("book-sImages").child(test.id);
+                    if(sampleImage!=null){
+                      uploadTask = storageRef.putFile(sampleImage);
+                      uploadTask.snapshotEvents.listen((event) async {
+                        if(event.state==TaskState.success){
+                          widget.imageUrl = await storageRef.getDownloadURL();
+                          widget.books.doc((test.id)).update({"imageUrl":widget.imageUrl}).then((value){
+                            Navigator.pop(context);
+                          }
+                          );
+                        }else{
+                          setState((){
+                            widget.currentPicture = Container(
+                              color: Colors.blue,
+                              child: SpinKitThreeBounce(color: Colors.white,size: 45,),
+                            );
+                          });
+                        }
+                      });
+                    }else{
+                      Navigator.pop(context);
+                    }
                   }
                 },
-              )
+              ):SizedBox(width:0)
             ),
             SizedBox(
               height : MediaQuery.of(context).viewInsets.bottom==0?0:MediaQuery.of(context).viewInsets.bottom

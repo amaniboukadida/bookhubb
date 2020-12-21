@@ -16,8 +16,9 @@ class DataBaseService{
       "imageProfileUrl" : imageProfileUrl
     });
   }
-  Future updateBooksData({String title, String author, int pageNumbers, String genre, String location, String uid, String imageUrl}) async{
-    return await bookCollection.doc().set({
+  Future<DocumentReference> updateBooksData({String title, String author, int pageNumbers, String genre, String location, String uid, String imageUrl}) async{ 
+    DocumentReference test = await bookCollection.doc();
+    test.set({
       "title" : title,
       "author" : author,
       "pageNumbers" : pageNumbers,
@@ -26,5 +27,6 @@ class DataBaseService{
       "imageUrl" : imageUrl,
       "user_uid" : uid,
     });
+    return test;
   }
 }
