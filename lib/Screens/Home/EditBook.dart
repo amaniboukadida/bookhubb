@@ -1,14 +1,13 @@
 import 'dart:io';
 import 'package:bookhub/Services/database.dart';
 import 'package:bookhub/models/Book.dart';
-import 'package:bookhub/models/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 
+// ignore: must_be_immutable
 class EditBook extends StatefulWidget {
   Book book;
   bool editBookClicked = false;
@@ -300,8 +299,23 @@ class _EditBookState extends State<EditBook> {
                                   await storageRef.delete();
                                 }     
                                 await DataBaseService().bookCollection.doc(widget.book.docUid).delete();
-                                Navigator.pop(context);
-                                Navigator.pop(context); 
+                                showDialog(
+                                  context: context,
+                                  builder: ((_) => AlertDialog(
+                                  title: Text("Book deleted successfully"),
+                                  content: Text("Click OK to continue"),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text("OK",style:TextStyle(color: Colors.cyan)),
+                                      onPressed:(){
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                        Navigator.pop(context); 
+                                      }
+                                    )
+                                  ]
+                                  ))
+                                );
                               },
                               child: Text(
                                 "Yes",

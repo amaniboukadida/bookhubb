@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import "package:image/image.dart" as Img;
 import 'package:image_picker/image_picker.dart';
 // ignore: must_be_immutable
 class AddBook extends StatefulWidget {
@@ -30,8 +29,7 @@ class _AddBookState extends State<AddBook> {
   UploadTask uploadTask;
   File sampleImage;
 
-  @override
-  
+ 
  ImageProvider checkURL(String url)
   {
     try {
@@ -54,16 +52,14 @@ class _AddBookState extends State<AddBook> {
       );
     });
   }
-
+  @override
   Widget build(BuildContext context) {
-    
     if(!(widget.imageUrl=="" || widget.imageUrl == null)){
       widget.currentPicture = Image(
         fit: BoxFit.cover,
         image:checkURL(widget.imageUrl)
       );
     }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('AddBook'),
@@ -230,7 +226,26 @@ class _AddBookState extends State<AddBook> {
                         if(event.state==TaskState.success){
                           widget.imageUrl = await storageRef.getDownloadURL();
                           widget.books.doc((test.id)).update({"imageUrl":widget.imageUrl}).then((value){
-                            Navigator.pop(context);
+                          showDialog(
+                            context: context,
+                            builder: ((_) => 
+                            AlertDialog(
+                              title: Text("Book added successfully"),
+                              content: Text("Click OK to continue"),
+                              actions: [
+                                FlatButton(
+                                  onPressed: (){
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "OK",
+                                    style: TextStyle(color: Colors.cyan),
+                                  ),
+                                ),
+                              ],
+                            )
+                          )); 
                           }
                           );
                         }else{
@@ -243,7 +258,26 @@ class _AddBookState extends State<AddBook> {
                         }
                       });
                     }else{
-                      Navigator.pop(context);
+                      await showDialog(
+                        context: context,
+                        builder: ((_) => 
+                        AlertDialog(
+                          title: Text("Book added successfully"),
+                          content: Text("Click OK to continue"),
+                          actions: [
+                            FlatButton(
+                              onPressed: (){
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "OK",
+                                style: TextStyle(color: Colors.cyan),
+                              ),
+                            ),
+                          ],
+                        )
+                      ));               
                     }
                   }
                 },

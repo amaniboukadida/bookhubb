@@ -4,7 +4,8 @@ class DataBaseService{
   //collection reference
   final CollectionReference userCollection =  FirebaseFirestore.instance.collection("users");
   final CollectionReference bookCollection =  FirebaseFirestore.instance.collection("books");
-  
+  final CollectionReference msgCollection =  FirebaseFirestore.instance.collection("messages");
+
   final String uid;
   DataBaseService({this.uid});
   Future updateUserData(String username, String email, String password, String location,String imageProfileUrl) async{
@@ -17,8 +18,8 @@ class DataBaseService{
     });
   }
   Future<DocumentReference> updateBooksData({String title, String author, int pageNumbers, String genre, String location, String uid, String imageUrl}) async{ 
-    DocumentReference test = await bookCollection.doc();
-    test.set({
+    DocumentReference test = bookCollection.doc();
+    await test.set({
       "title" : title,
       "author" : author,
       "pageNumbers" : pageNumbers,
@@ -28,5 +29,15 @@ class DataBaseService{
       "user_uid" : uid,
     });
     return test;
+  }
+  Future<DocumentReference> updateMessagesData({String senderUid , String recieverUid , String date , String data}) async{ 
+    DocumentReference docReference = msgCollection.doc();
+    await docReference.set({
+      "senderUid" : senderUid,
+      "recieverUid" : recieverUid,
+      "pageNumbers" : date,
+      "genre" : data,
+    });
+    return docReference;
   }
 }

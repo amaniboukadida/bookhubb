@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bookhub/Screens/ContactOwner.dart';
 import 'package:bookhub/Screens/Home/EditBook.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -128,7 +129,8 @@ class _BookState extends State<Book> {
                         width: 200,
                         child: FlatButton(onPressed: 
                         (){
-                          //takes the user to contact owner interface
+                          Navigator.push(context, MaterialPageRoute(
+                          builder:(_)=>ContactOwner(ownerUid : widget.ownerUid)));
                         }, 
                         color: Colors.blue,
                         child: Text("Contact owner",style: TextStyle(color: Colors.white),)),
@@ -170,7 +172,7 @@ class _BookState extends State<Book> {
                           children: [
                           Row(children: [
                             Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                            Text(widget.title.length>12?widget.title.substring(0,12)+"...":widget.title)
+                            Text(widget.title.length>10?widget.title.substring(0,10)+"...":widget.title)
                           ],),
                           Row(children: [
                             Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),

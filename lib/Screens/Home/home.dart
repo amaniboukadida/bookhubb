@@ -387,35 +387,9 @@ class _HomeState extends State<Home> {
         ],),   
         floatingActionButton: userprofileOn?null:FloatingActionButton(
           onPressed: ()async {
-            String received = await Navigator.push(context, MaterialPageRoute(
+            await Navigator.push(context, MaterialPageRoute(
             builder:(_)=>AddBook(books : DataBaseService().bookCollection,user : user)
-            )).then((value)
-            {
-              showDialog(
-                context: context,
-                builder: ((_) => 
-                AlertDialog(
-                  title: Text("Book added successfully"),
-                  content: Text("Click OK to continue"),
-                  actions: [
-                    FlatButton(
-                      onPressed: (){
-                        setState(() {
-                          booksWidgets=null;
-                          bookDocuments=null;
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        "OK",
-                        style: TextStyle(color: Colors.cyan),
-                      ),
-                    ),
-                  ],
-                )
-              ));
-            });
-            
+            ));
           },
           child: Icon(Icons.add),
         )
