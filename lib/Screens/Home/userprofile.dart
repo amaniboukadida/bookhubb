@@ -10,30 +10,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class UserProfile extends StatefulWidget {
+
   final AuthService auth;
+  UserModel user;
   String username =" ";
   String email = "";
   String location = "";
   bool userDataRetrieved = false;
   bool editProfileOn = false;
   bool loading = false;
-  UserProfile({this.auth});
+  UserProfile({this.auth,this.user});
   String imageUrl;
   @override
   _UserProfileState createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
-  
+  UserModel user;
+  CollectionReference users;
   final picker = ImagePicker();
   UploadTask uploadTask;
   File sampleImage;
-  ScrollController _scrollController = ScrollController();
-  
   Future<List<Widget>> buildBooks(String uid) async{
     List<Widget> test = await DataBaseService().bookCollection.where("user_uid",isEqualTo: uid).get().then((value)
     {
@@ -74,7 +74,7 @@ class _UserProfileState extends State<UserProfile> {
             setState((){
               user.avatarChild = CircleAvatar(
                 backgroundImage: checkURL(widget.imageUrl),
-                radius: 80,
+                radius: 72,
               );
               widget.userDataRetrieved = false;
             });
@@ -84,7 +84,7 @@ class _UserProfileState extends State<UserProfile> {
             user.avatarChild = CircleAvatar(
               backgroundColor: Colors.blue,
               child: SpinKitThreeBounce(size: 40,color: Colors.white ,),
-              radius: 80,
+              radius: 72,
             );
           });
         }
@@ -102,19 +102,23 @@ class _UserProfileState extends State<UserProfile> {
       return test;
     }
   }
-     
   @override
-  Widget build(BuildContext context) {
-    
-    final user = Provider.of<UserModel>(context);
-    final users = Provider.of<CollectionReference>(context);
-    widget.userDataRetrieved = false;
-    if(!widget.userDataRetrieved)users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot)async {
+  void initState(){
+    super.initState();
+    user = widget.user;
+    users = DataBaseService().userCollection;
+    users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot)async {
       if (documentSnapshot.exists) {
         widget.username = await documentSnapshot.get("username");
         widget.email = await documentSnapshot.get("email");
         widget.location = await documentSnapshot.get("location");
         widget.imageUrl = await documentSnapshot.get("imageProfileUrl");
+        if(!(widget.imageUrl=="" || widget.imageUrl == null)){
+          user.avatarChild = CircleAvatar(
+            backgroundImage: checkURL(widget.imageUrl),
+            radius: 72,
+          );
+        }
         setState(() {
           widget.userDataRetrieved = true;
         });
@@ -122,15 +126,22 @@ class _UserProfileState extends State<UserProfile> {
         print('Document does not exist on the database');
       }
     });
-    if(!(widget.imageUrl=="" || widget.imageUrl == null)){
-      user.avatarChild = CircleAvatar(
-        backgroundImage: checkURL(widget.imageUrl),
-        radius: 80,
-      );
+
+  }
+  @override
+  Widget build(BuildContext context) {
+    if(!widget.userDataRetrieved){
+      users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot)async {
+      if (documentSnapshot.exists) {
+        widget.username = await documentSnapshot.get("username");
+        widget.email = await documentSnapshot.get("email");
+        widget.location = await documentSnapshot.get("location");
+        setState(() {
+          widget.userDataRetrieved = true;
+        });
+      }
+    });
     }
-    /*for(var doc in users.docs){
-      print(doc.id);
-    }*/
     return 
     ListView(
       children: [
@@ -140,7 +151,34 @@ class _UserProfileState extends State<UserProfile> {
             Stack(
               alignment: Alignment.topCenter,
               children : [ 
-                Image.asset("assets/userProfile.jpg"),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 280,
+                  child: Image.asset("assets/userProfile.jpg",fit: BoxFit.cover,)
+                ),
+                Positioned(
+                  top: 0,
+                  right: 5,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      FlatButton(
+                        color: Colors.blue,
+                        child: Text(
+                          "Edit profile",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(
+                          builder:(_)=>EditProfile(users: users, user: user,)
+                          )).then((value){this.setState(() {
+                            widget.userDataRetrieved = false;
+                          });});
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -149,10 +187,10 @@ class _UserProfileState extends State<UserProfile> {
                       children :[
                         CircleAvatar(
                           backgroundColor: Colors.blue,
-                          radius: 83,
+                          radius: 75,
                           child: user.avatarChild==null?CircleAvatar(
                             backgroundColor : Colors.blue[400],
-                            radius: 80,
+                            radius: 72,
                             child: Text(
                               widget.username[0].toUpperCase(),
                               style: TextStyle(
@@ -167,27 +205,21 @@ class _UserProfileState extends State<UserProfile> {
                         Positioned(
                           bottom: 1,
                           right: 1,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Ink(
-                              decoration: ShapeDecoration(
-                                color: Colors.lightBlue,
-                                shape: CircleBorder(),
-                              ),
-                              child : IconButton(
-                                iconSize: 25,
-                                icon: Icon(Icons.add_a_photo_rounded,color: Colors.white,),
-                                color: Colors.black,
-                                onPressed: () async{
-                                  await getImage(user, users);
-                                }
-                              )
+                          child: GestureDetector(
+                            child: CircleAvatar(
+                              backgroundColor : Colors.blue,
+                              radius : 20,
+                              child : Icon(Icons.add_a_photo_rounded,color: Colors.white,size: 25,),
                             ),
-                          ), 
+                            onTap: () async{
+                              await getImage(user, users);
+                            }
+                          )
                         ),
                       ]
                     ),
                     SizedBox(height : 10),
+                    
                     Text(
                       widget.username,
                       style: TextStyle(
@@ -235,12 +267,13 @@ class _UserProfileState extends State<UserProfile> {
                       Container(
                         color: Colors.lightBlue[50],
                         width: MediaQuery.of(context).size.width,
-                        height: 150,
+                        padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                        //height: 150,
                         child : FutureBuilder(
                           future: buildBooks(user.uid),
                           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                             if(snapshot.hasData){
-                              return SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: snapshot.data));
+                              return Column(children: snapshot.data);
                             }else{
                               return Container(child : SpinKitRipple(color: Colors.blue[100],size: 80,));
                             }
@@ -259,69 +292,6 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               ]
             ),
-            SizedBox(
-              height : 15
-            ),
-            Stack(
-              children : [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10,0,10,0),
-                  child: Column(
-                    children: [
-                      SizedBox(height : 15),
-                      Container(
-                        color: Colors.lightBlue[50],
-                        width: MediaQuery.of(context).size.width,
-                        height: 130,
-                        child : Column(
-                          children: [
-                            
-                          ],
-                        )
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Text(
-                    "My Offers",
-                    style :TextStyle(color: Colors.blue[800],fontSize : 18,fontFamily: "Times New Roman",fontWeight: FontWeight.bold)
-                  ),
-                ),
-              ]
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FlatButton(
-                  color: Colors.blue,
-                  child: Text(
-                    "Edit profile",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(
-                    builder:(_)=>EditProfile(users: users, user: user,)
-                    ));
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: FlatButton(
-                    color: Colors.blue,
-                    child: Text(
-                      "Sign out",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: (){
-                      widget.auth.signOut();
-                    },
-                  ),
-                  
-                ),
-              ],
-            )
           ],
         ),
       ],

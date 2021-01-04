@@ -20,6 +20,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Edit profile"),
       ),
@@ -117,6 +118,19 @@ class _EditProfileState extends State<EditProfile> {
                 ],)
               ]
             ),
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(10),
+              child: Container(
+                width: MediaQuery.of(context).size.width*0.9,
+                height: 250,
+                child: Image(
+                  fit: BoxFit.cover,
+                  image:AssetImage("assets/editProfile.jpg")
+                ),
+              )
+            )
+            
           ],
         ),
       ),

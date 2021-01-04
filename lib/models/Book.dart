@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 class Book extends StatefulWidget {
   Widget currentPicture;
   String imageUrl;
+  String userUid;
   String author;
   String title;
   String category;
@@ -19,7 +20,7 @@ class Book extends StatefulWidget {
   String ownerUid;
   int pageNumber;
   final int screenId; // 0 if home screen, 1 if user profile, 2 if book screen
-  Book({this.author,this.title,this.category,this.location,this.docUid,this.ownerUid,this.pageNumber,this.screenId,this.imageUrl});
+  Book({this.userUid ,this.author,this.title,this.category,this.location,this.docUid,this.ownerUid,this.pageNumber,this.screenId,this.imageUrl});
   @override
   _BookState createState() => _BookState();
 }
@@ -57,7 +58,6 @@ class _BookState extends State<Book> {
         if(event.state==TaskState.success){
           widget.imageUrl = await storageRef.getDownloadURL();
           books.doc(docUid).update({"imageUrl":widget.imageUrl}).then((value){
-            print("done !!!!!");
             setState((){
               widget.currentPicture = CircleAvatar(
                 backgroundImage: checkURL(widget.imageUrl),
@@ -88,16 +88,37 @@ class _BookState extends State<Book> {
               padding: EdgeInsets.all(10),
               height: 150,
               width: MediaQuery.of(context).size.width,
-              color: Colors.indigo[50],
+              decoration: ShapeDecoration(
+                color: Colors.indigo[50],
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+              ),
               child: Row(
                 children: [
-                  Container(
-                    width: 120,
-                    height: 150,
-                    child : Image(
-                      fit: BoxFit.cover,
-                      image: checkURL(widget.imageUrl),
-                    )
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Container(
+                        child: SpinKitCircle(size: 35,color: Colors.white,),
+                        decoration: ShapeDecoration(
+                          color: Colors.indigo[200],
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+                        ), 
+                        width: 105,
+                        height: 155,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15.0),
+                          child : Image(
+                            width: 100,
+                            height: 155,
+                            fit: BoxFit.cover,
+                            image: checkURL(widget.imageUrl),
+                          )
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(width : 10),
                   Container(
@@ -126,14 +147,33 @@ class _BookState extends State<Book> {
                       ],),
                       SizedBox(height : 2),
                       Container(
+                        
                         width: 200,
-                        child: FlatButton(onPressed: 
-                        (){
-                          Navigator.push(context, MaterialPageRoute(
-                          builder:(_)=>ContactOwner(ownerUid : widget.ownerUid)));
-                        }, 
-                        color: Colors.blue,
-                        child: Text("Contact owner",style: TextStyle(color: Colors.white),)),
+                        child: widget.userUid!=widget.ownerUid? Column(
+                          children: [
+                            SizedBox(height : 10),
+                            Container(
+                              height: 35,
+                              width: 160,
+                              decoration: ShapeDecoration(
+                                color: Colors.blue,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              ), 
+                              child: FlatButton(onPressed: 
+                              (){
+                                Navigator.push(context, MaterialPageRoute(
+                                builder:(_)=>ContactOwner(ownerUid : widget.ownerUid,userUid : widget.userUid)));
+                              }, 
+                              child: Text("Contact owner",style: TextStyle(color: Colors.white),)),
+                            ),
+                          ],
+                        ):
+                        Column(
+                          children: [
+                            SizedBox(height:15),
+                            Text("(You are the owner)",style: TextStyle(color: Colors.grey),),
+                          ],
+                        ),
                       )
                     ],),
                   ),
@@ -148,39 +188,42 @@ class _BookState extends State<Book> {
           children:[ 
             Container(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(10,0,0,0),
+                padding: const EdgeInsets.fromLTRB(10,0,10,10),
                 child: Container(
+                  decoration: ShapeDecoration(
+                    color: Colors.blue[100],
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                  ),
                   padding: EdgeInsets.all(10),
-                  
                   height: 130,
-                  width: 250,
-                  color: Colors.blue[100],
+                  width: MediaQuery.of(context).size.width-25,
                   child: Row(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 120,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(15.0),
                         child : Image(
+                          width: 90,
+                          height: 120,
                           fit: BoxFit.cover,
                           image: checkURL(widget.imageUrl),
                         )
                       ),
                       SizedBox(width : 10),
                       Container(
-                        width: 140,
+                        width: 200,
                         child: Column( crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                           Row(children: [
                             Text("Ttile : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                            Text(widget.title.length>10?widget.title.substring(0,10)+"...":widget.title)
+                            Text(widget.title.length>20?widget.title.substring(0,20)+"...":widget.title)
                           ],),
                           Row(children: [
                             Text("Author : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                            Text(widget.author.length>9?widget.author.substring(0,9)+"...":widget.author)
+                            Text(widget.author.length>18?widget.author.substring(0,18)+"...":widget.author)
                           ],),
                           Row(children: [
                             Text("category : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                            Text(widget.category.length>8?widget.category.substring(0,8)+"...":widget.category)
+                            Text(widget.category.length>16?widget.category.substring(0,16)+"...":widget.category)
                           ],),
                           Row(children: [
                             Text("Nbr of pages : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
@@ -188,7 +231,7 @@ class _BookState extends State<Book> {
                           ],),
                           Row(children: [
                             Text("Location : ",style: TextStyle(fontWeight:FontWeight.bold ,color: Colors.indigo[800]),),
-                            Text(widget.location.length>10?widget.location.substring(0,10)+"...":widget.location)
+                            Text(widget.location.length>17?widget.location.substring(0,17)+"...":widget.location)
                           ],)
                         ],),
                       ),
@@ -198,18 +241,20 @@ class _BookState extends State<Book> {
               ),
           ),
           Positioned(
-            bottom: 6,
-            right: 6,
+            bottom: 20,
+            right: 20,
             child: GestureDetector(
               onTap: (){
                 Navigator.push(context, MaterialPageRoute(
                 builder:(_)=>EditBook(this.widget)
-                ));
+                )).then((value){
+                  
+                });
               },
               child: Material(
               color: Colors.transparent,
               child: Ink(
-                width: 75,
+                width: 85,
                 height: 30,
                 decoration: ShapeDecoration(
                   color: Colors.blue,

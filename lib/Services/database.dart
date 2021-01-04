@@ -5,6 +5,7 @@ class DataBaseService{
   final CollectionReference userCollection =  FirebaseFirestore.instance.collection("users");
   final CollectionReference bookCollection =  FirebaseFirestore.instance.collection("books");
   final CollectionReference msgCollection =  FirebaseFirestore.instance.collection("messages");
+  final CollectionReference conversationCollection =  FirebaseFirestore.instance.collection("conversations");
 
   final String uid;
   DataBaseService({this.uid});
@@ -35,8 +36,18 @@ class DataBaseService{
     await docReference.set({
       "senderUid" : senderUid,
       "recieverUid" : recieverUid,
-      "pageNumbers" : date,
-      "genre" : data,
+      "date" : date,
+      "data" : data,
+    });
+    return docReference;
+  }
+  Future<DocumentReference> updateConversationsData({String conversationId,String user1id ,String user2id,String lastMsgId}) async{ 
+    DocumentReference docReference = conversationCollection.doc();
+    await docReference.set({
+      "conversationId" : conversationId,
+      "user1Id" : user1id,
+      "user2Id" : user2id,
+      "lastMsgId" : lastMsgId,
     });
     return docReference;
   }

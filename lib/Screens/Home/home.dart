@@ -1,12 +1,14 @@
+import 'package:bookhub/Screens/AboutBookHub.dart';
 import 'package:bookhub/Screens/Home/AddBook.dart';
+import 'package:bookhub/Screens/Home/Chat.dart';
 import 'package:bookhub/Screens/Home/userprofile.dart';
 import 'package:bookhub/Services/Auth.dart';
 import 'package:bookhub/models/Book.dart';
+import 'package:bookhub/models/BookListBloc.dart';
 import 'package:bookhub/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import "package:bookhub/Services/database.dart";
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import "package:provider/provider.dart";
 
 // ignore: must_be_immutable
@@ -22,82 +24,34 @@ class _HomeState extends State<Home> {
   List<QueryDocumentSnapshot> bookDocuments;
   String searchCategory = "All";
   String searchLocation = "All";
+  String searchedBookName ="";
   final AuthService _auth = AuthService();
   bool userprofileOn = false;
   bool usernameRetrieved = false;
   bool filterOn = false;
-  Query query;
+  bool chatScreenOn = false;
+  bool aboutBookhubOn = false;
+  BookListBloc bookListBloc;
   ScrollController _scrollController = ScrollController();
-  Future<List<Widget>> buildBooks() async{
-    if(searchCategory!="All"&&searchLocation!="All")
-    {
-      query = DataBaseService().bookCollection.limit(20).where("location", isEqualTo: searchLocation).where("genre",isEqualTo:searchCategory);
-    }else if(searchCategory!="All"&&searchLocation=="All")
-    {
-      query = DataBaseService().bookCollection.limit(20).where("genre",isEqualTo:searchCategory);    
-    }else if(searchCategory=="All"&&searchLocation!="All")
-    {
-      query = DataBaseService().bookCollection.limit(20).where("location",isEqualTo:searchLocation);
-    }else{
-      query = DataBaseService().bookCollection.limit(20);     
-    }
-    if(bookDocuments!=null){
-      query.startAfter([bookDocuments]);
-    }
-    List<Widget> test = await query.get().then((value)
-    {
-      List<Widget> test=[];
-      for (var doc in value.docs) {
-        test.add(new Book(
-          author: doc.get("author"), 
-          title: doc.get("title"), 
-          category: doc.get("genre"), 
-          location: doc.get("location"),
-          docUid: doc.id, 
-          ownerUid: doc.get("user_uid"), 
-          pageNumber: doc.get("pageNumbers"),
-          imageUrl : doc.get("imageUrl"),
-          screenId: 0,)//homescreen
-        );
-      }
-      if(bookDocuments!=null){
-        bookDocuments.addAll(value.docs);
-      }else{
-        bookDocuments=value.docs;
-      }
-      return test;
-    });
-    if(booksWidgets==null){
-      booksWidgets = test;
-    }else{
-      booksWidgets.addAll(test);
-    }
-    return booksWidgets;
+  
+  @override
+  void initState(){
+    super.initState();
+    bookListBloc = BookListBloc();
+    bookListBloc.fetchFirstList(searchCategory,searchLocation,searchedBookName);
+    _scrollController.addListener(_scrollListener);
   }
   @override
   Widget build(BuildContext context) {
-    _scrollController.addListener(
-      () {
-        double maxScroll = _scrollController.position.maxScrollExtent;
-        double currentScroll = _scrollController.position.pixels;
-        double delta = 50.0; 
-        if ( maxScroll - currentScroll <= delta) { 
-            setState(() {
-              print("added more books");
-            });
-        }
-      }
-    );
-    final user = Provider.of<UserModel>(context);
-    if(!usernameRetrieved)DataBaseService().userCollection.doc(user.uid).get().then((value) async { 
-      user.username = await value.get("username");
+   
+    widget.user = Provider.of<UserModel>(context);
+    if(!usernameRetrieved)DataBaseService().userCollection.doc(widget.user.uid).get().then((value) async { 
+      widget.user.username = await value.get("username");
       setState(() {
         usernameRetrieved = true;
       });
     });
-    return Provider<CollectionReference>.value(
-      value: DataBaseService().userCollection,
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text('BookHub'),
         ),
@@ -119,7 +73,7 @@ class _HomeState extends State<Home> {
                     ),
                     SizedBox(height : 15),
                     Text(
-                      user.username==null?" ":user.username,
+                      widget.user.username==null?" ":widget.user.username,
                       textAlign : TextAlign.left,
                       style: TextStyle(color: Colors.white, fontSize: 25),
                     ),
@@ -138,8 +92,10 @@ class _HomeState extends State<Home> {
                 title: Text('Home'),
                 onTap: (){
                   setState(() {
-                    Navigator.of(context).pop();
+                    chatScreenOn = false;
                     userprofileOn = false;
+                    aboutBookhubOn = false;
+                    Navigator.of(context).pop();
                   });
                 },
               ),
@@ -149,6 +105,8 @@ class _HomeState extends State<Home> {
                 onTap: (){
                   setState(() {
                     userprofileOn = true;
+                    chatScreenOn = false;
+                    aboutBookhubOn = false;
                     Navigator.of(context).pop();
                   });
                 },
@@ -156,12 +114,26 @@ class _HomeState extends State<Home> {
               ListTile(
                 leading: Icon(Icons.chat),
                 title: Text('Chat'),
-                onTap: () => {},
+                onTap: () => {
+                  setState((){
+                    chatScreenOn = true;
+                    userprofileOn = false;
+                    aboutBookhubOn = false;
+                    Navigator.of(context).pop();
+                  })
+                },
               ),
               ListTile(
                 leading: Icon(Icons.help),
                 title: Text('About BookHub'),
-                onTap: () => {},
+                onTap: () => {
+                  setState((){
+                    aboutBookhubOn = true;
+                    chatScreenOn = false;
+                    userprofileOn = false;
+                    Navigator.of(context).pop();
+                  })
+                },
               ),
               ListTile(
                 leading: Icon(Icons.exit_to_app),
@@ -171,33 +143,12 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-        body: userprofileOn? UserProfile(auth : _auth): Column(children: [
-          Stack(
+        body: userprofileOn? UserProfile(auth : _auth,user:widget.user):
+        chatScreenOn? ChatScreen(user: widget.user,) :
+        aboutBookhubOn ? AboutBookHub(user: widget.user):
+         Column(children: [
+          Column(
             children: [
-              GestureDetector(
-                onTap: (){setState(() {
-                  filterOn = false;
-                });},
-                child: Container(
-                  height : MediaQuery.of(context).size.height-(MediaQuery.of(context).padding.top + kToolbarHeight + MediaQuery.of(context).viewInsets.bottom),
-                  child: ListView(
-                    controller: _scrollController,
-                    children: [
-                      SizedBox(height : 70),
-                      FutureBuilder(
-                        future: buildBooks(),
-                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                          if(booksWidgets!=null){
-                            return Column(children: booksWidgets);
-                          }else{
-                            return Container(padding: EdgeInsets.fromLTRB(0, 150, 0, 0), child : SpinKitRipple(color: Colors.blue,size: 150,));
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               Stack(
                 children: [
                   Column(
@@ -319,7 +270,10 @@ class _HomeState extends State<Home> {
                           flex: 13,
                           child: Container(
                             height: 50,
-                            child: TextField(
+                            child: TextFormField(
+                              onChanged :(val){
+                                searchedBookName = val;
+                              },
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 filled: true,
@@ -364,8 +318,9 @@ class _HomeState extends State<Home> {
                                   child : InkWell(
                                     onTap  : () {setState(() {
                                       filterOn=false;
-                                      booksWidgets=null;
-                                      bookDocuments=null;
+                                      bookListBloc.documentList=[];
+                                      print(searchedBookName);
+                                      bookListBloc.fetchFirstList(searchCategory, searchLocation, searchedBookName);
                                     });},
                                     child: Container(
                                       color: Colors.transparent,
@@ -382,18 +337,73 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
+              GestureDetector(
+                onTap: (){setState(() {
+                  filterOn = false;
+                });},
+                child: Container(
+                  height : MediaQuery.of(context).size.height-(MediaQuery.of(context).padding.top + kToolbarHeight + MediaQuery.of(context).viewInsets.bottom+72+(filterOn?63:0)),
+                  child: StreamBuilder<List<List<DocumentSnapshot>>>(
+                        stream: bookListBloc.bookStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            return ListView.builder(
+                              itemCount: snapshot.data[1].length,
+                              shrinkWrap: true,
+                              controller: _scrollController,
+                              itemBuilder: (context, index) {
+                                return Book(
+                                  userUid: widget.user.uid,
+                                  author: snapshot.data[1][index]["author"], 
+                                  title: snapshot.data[1][index]["title"], 
+                                  category: snapshot.data[1][index]["genre"], 
+                                  location: snapshot.data[1][index]["location"],
+                                  docUid: snapshot.data[1][index].id, 
+                                  ownerUid: snapshot.data[1][index]["user_uid"], 
+                                  pageNumber: snapshot.data[1][index]["pageNumbers"],
+                                  imageUrl : snapshot.data[1][index]["imageUrl"],
+                                  screenId: 0//homescreen
+                                );
+                              },
+                            );
+                          }else {
+                            return Center(child: Text("No books with such characteristics"));
+                          }
+                        }
+                      )
+                      /*
+                      FutureBuilder(
+                        future: buildBooks(widget.user.uid),
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if(booksWidgets!=null){
+                            return Column(children: booksWidgets);
+                          }else{
+                            return Container(padding: EdgeInsets.fromLTRB(0, 150, 0, 0), child : SpinKitRipple(color: Colors.blue,size: 150,));
+                          }
+                        },
+                      ),*/
+                  ),
+                ),            
             ]
           ),
         ],),   
-        floatingActionButton: userprofileOn?null:FloatingActionButton(
+        floatingActionButton: userprofileOn?null:chatScreenOn?null
+        :aboutBookhubOn?null:FloatingActionButton(
           onPressed: ()async {
             await Navigator.push(context, MaterialPageRoute(
-            builder:(_)=>AddBook(books : DataBaseService().bookCollection,user : user)
+            builder:(_)=>AddBook(books : DataBaseService().bookCollection,user : widget.user)
             ));
           },
           child: Icon(Icons.add),
         )
-      ),
-    );
+      );
+  }
+  void _scrollListener() {
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      print("at the end of list");
+      bookListBloc.fetchNextBooks(searchCategory,searchLocation,searchedBookName);
+    }
   }
 }
+

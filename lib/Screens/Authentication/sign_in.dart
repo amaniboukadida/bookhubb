@@ -20,6 +20,7 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return loading? Loading():Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('BookHub'),
       ),
@@ -29,59 +30,95 @@ class _SignInState extends State<SignIn> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width*0.9,
-                    height: 250,
-                    child: Image(
-                      fit: BoxFit.cover,
-                      image:AssetImage("assets/signIn.jpg")
-                    ),
-                  )),
-              Container(
+            Container(
+                alignment: Alignment.center,
                 padding: EdgeInsets.all(10),
-                child: TextFormField(
-                  validator: (val){
-                    return val.isEmpty? "Enter an email" : null;
-                  },
-                  onChanged: (val){
-                    setState(() {
-                       email = val;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'User email',
+                child: Container(
+                  width: MediaQuery.of(context).size.width*0.9,
+                  height: 250,
+                  child: Image(
+                    fit: BoxFit.cover,
+                    image:AssetImage("assets/signIn.jpg")
+                  ),
+                )),
+            Container(
+              padding: EdgeInsets.all(10),
+              child: TextFormField(
+                validator: (val){
+                  return val.isEmpty? "Enter an email" : null;
+                },
+                onChanged: (val){
+                  setState(() {
+                      email = val;
+                  });
+                },
+                /*decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'User email',
+                ),*/
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white10,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  labelText : "User email",
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide(
+                      color: Colors.black54,
+                      width: 1.0,
+                    ),
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: TextFormField(
-                  validator: (val){
-                    return val.isEmpty? "Enter a password" : val.length>5? null:"Enter a 6+ chars password";
-                  },
-                  onChanged: (val){
-                    setState(() {
-                       password = val;
-                    });
-                  },
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    errorText: loginFail ? "wrong username and password combination":null,
-                    labelText: 'Password',
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: TextFormField(
+                validator: (val){
+                  return val.isEmpty? "Enter a password" : val.length>5? null:"Enter a 6+ chars password";
+                },
+                onChanged: (val){
+                  setState(() {
+                      password = val;
+                  });
+                },
+                obscureText: true,
+                /*decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  errorText: loginFail ? "wrong username and password combination":null,
+                  labelText: 'Password',
+                ),*/
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white10,
+                  errorText: loginFail ? "wrong username and password combination":null,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  labelText : "Password",
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                    borderSide: BorderSide(
+                      color: Colors.black54,
+                      width: 1.0,
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height : 10),
-              Container(
-              height: 50,
+            ),
+            SizedBox(height : 10),
+            Container(
+              height: 50, 
               padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: RaisedButton(
                 textColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25.0), 
+                ),
                 color: Colors.blue,
                 child: Text('Login'),
                 onPressed: () async{

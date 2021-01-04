@@ -310,7 +310,7 @@ class _EditBookState extends State<EditBook> {
                                       onPressed:(){
                                         Navigator.pop(context);
                                         Navigator.pop(context);
-                                        Navigator.pop(context); 
+                                        Navigator.pop(context);
                                       }
                                     )
                                   ]
