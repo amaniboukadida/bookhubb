@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bookhub/Screens/Home/userprofile.dart';
 import 'package:bookhub/Services/database.dart';
 import 'package:bookhub/models/Book.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -311,6 +312,9 @@ class _EditBookState extends State<EditBook> {
                                         Navigator.pop(context);
                                         Navigator.pop(context);
                                         Navigator.pop(context);
+                                        setState(){
+                                          UserProfile.bookdeleted = true;
+                                        }
                                       }
                                     )
                                   ]

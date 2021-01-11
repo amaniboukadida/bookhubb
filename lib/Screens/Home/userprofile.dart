@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import "package:firebase_storage/firebase_storage.dart";
 import 'package:bookhub/Screens/Home/EditProfile.dart';
@@ -13,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 
 // ignore: must_be_immutable
 class UserProfile extends StatefulWidget {
-
+  static bool bookdeleted;
   final AuthService auth;
   UserModel user;
   String username =" ";
@@ -30,6 +31,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   UserModel user;
+  Timer timer;
   CollectionReference users;
   final picker = ImagePicker();
   UploadTask uploadTask;
@@ -105,6 +107,13 @@ class _UserProfileState extends State<UserProfile> {
   @override
   void initState(){
     super.initState();
+    timer = Timer.periodic(Duration(seconds: 1), (Timer t){ 
+      if(UserProfile.bookdeleted){
+        setState(() {
+          UserProfile.bookdeleted = false;
+        });
+      }
+    });
     user = widget.user;
     users = DataBaseService().userCollection;
     users.doc(user.uid).get().then((DocumentSnapshot documentSnapshot)async {
