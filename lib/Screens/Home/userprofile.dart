@@ -84,8 +84,8 @@ class _UserProfileState extends State<UserProfile> {
         }else{
           setState((){
             user.avatarChild = CircleAvatar(
-              backgroundColor: Colors.blue,
-              child: SpinKitThreeBounce(size: 40,color: Colors.white ,),
+              backgroundColor: Colors.transparent,
+              child: SpinKitThreeBounce(size: 40,color: Colors.black ,),
               radius: 72,
             );
           });
@@ -167,15 +167,16 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 Positioned(
                   top: 0,
-                  right: 5,
+                  left: 5,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       FlatButton(
-                        color: Colors.blue,
+                        color: Colors.transparent,
+                      
                         child: Text(
                           "Edit profile",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black ),
                         ),
                         onPressed: (){
                           Navigator.push(context, MaterialPageRoute(
@@ -195,17 +196,17 @@ class _UserProfileState extends State<UserProfile> {
                     Stack(
                       children :[
                         CircleAvatar(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.transparent,
                           radius: 75,
                           child: user.avatarChild==null?CircleAvatar(
-                            backgroundColor : Colors.blue[400],
+                            backgroundColor : Colors.white,
                             radius: 72,
                             child: Text(
                               widget.username[0].toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 45,
-                                fontFamily: "Times New Roman",
+                                fontFamily: "DayRoman",
                                 fontWeight: FontWeight.bold
                               ),
                             ),
@@ -216,9 +217,9 @@ class _UserProfileState extends State<UserProfile> {
                           right: 1,
                           child: GestureDetector(
                             child: CircleAvatar(
-                              backgroundColor : Colors.blue,
-                              radius : 20,
-                              child : Icon(Icons.add_a_photo_rounded,color: Colors.white,size: 25,),
+                              backgroundColor : Colors.transparent,
+                              radius : 15,
+                              child : Icon(Icons.add_a_photo_rounded,color: Colors.black54,size: 25,),
                             ),
                             onTap: () async{
                               await getImage(user, users);
@@ -232,11 +233,11 @@ class _UserProfileState extends State<UserProfile> {
                     Text(
                       widget.username,
                       style: TextStyle(
-                        color: Colors.blue[800],
-                        fontSize: 25,fontFamily: "Times New Roman",fontWeight: FontWeight.bold
+                        color: Colors.black,
+                        fontSize: 30,fontFamily: "Lucida Console"
                       ),
                     ),
-                    SizedBox(height : 5),
+                    SizedBox(height : 4),
                     Text(
                       widget.email,
                       style: TextStyle(
@@ -250,11 +251,11 @@ class _UserProfileState extends State<UserProfile> {
                       children :[
                         Icon(
                           Icons.location_pin,
-                          color: Colors.blue,
+                          color:Colors.blue,
                         ),
                         Text(
                           widget.location,
-                          style: TextStyle(color: Colors.black87,fontFamily: "Times New Roman",fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Colors.black87,fontFamily: "Times New Roman"),
                         ),
                         SizedBox(width:4)
                       ]
@@ -289,9 +290,11 @@ class _UserProfileState extends State<UserProfile> {
                           },
                         ),
                       )
+                      
                     ],
                   ),
                 ),
+                
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Text(

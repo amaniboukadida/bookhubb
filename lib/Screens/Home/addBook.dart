@@ -62,7 +62,10 @@ class _AddBookState extends State<AddBook> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('AddBook'),
+        backgroundColor: Colors.white,
+        title: Text('AddBook',
+        style: TextStyle(fontSize:18 ,color: Colors.black),)
+        
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -86,13 +89,13 @@ class _AddBookState extends State<AddBook> {
                       color: Colors.transparent,
                       child: Ink(
                         decoration: ShapeDecoration(
-                          color: Colors.lightBlue,
+                          color: Colors.transparent,
                           shape: CircleBorder(),
                         ),
                         child : IconButton(
                           iconSize: 25,
-                          icon: Icon(Icons.add_a_photo_rounded,color: Colors.white,),
-                          color: Colors.black,
+                          icon: Icon(Icons.add_a_photo_rounded,color: Colors.black38,),
+                          color: Colors.black38,
                           onPressed: () async{
                             await getImage();
                           }
@@ -210,8 +213,8 @@ class _AddBookState extends State<AddBook> {
               width: 100,
               padding: EdgeInsets.fromLTRB(100, 0, 100, 0),
               child: !widget.addBookClicked?RaisedButton(
-                textColor: Colors.white,
-                color: Colors.blue,
+                textColor: Colors.black,
+                color: Colors.white,
                 child: Text('Add book'),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
@@ -254,7 +257,8 @@ class _AddBookState extends State<AddBook> {
                               color: Colors.blue,
                               child: SpinKitThreeBounce(color: Colors.white,size: 45,),
                             );
-                          });
+ 
+                         });
                         }
                       });
                     }else{

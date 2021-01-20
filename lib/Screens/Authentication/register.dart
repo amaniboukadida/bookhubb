@@ -24,7 +24,14 @@ class _RegisterState extends State<Register> {
     return loading? Loading():Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('BookHub'),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: Text('BookHub',
+         style: TextStyle( color: Colors.black,fontSize:25 )
+
+        ),
+        
+      
         actions: [
           FlatButton.icon(
             onPressed: (){
@@ -241,8 +248,10 @@ class _RegisterState extends State<Register> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25.0), 
                 ),
-                color: Colors.blue,
-                child: Text('Sign up'),
+                color: Colors.white,
+                child: Text('Sign up',
+                 style: TextStyle( color: Colors.black,fontSize:20 ),
+                ),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
                     setState(() {

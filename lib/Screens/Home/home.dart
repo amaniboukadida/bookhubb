@@ -53,7 +53,11 @@ class _HomeState extends State<Home> {
     });
     return Scaffold(
         appBar: AppBar(
-          title: const Text('BookHub'),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          title: const Text('BookHub',
+          style: TextStyle( color: Colors.black,fontSize:25),
+          ),
         ),
         drawer: Drawer(
           child: ListView(
@@ -62,6 +66,7 @@ class _HomeState extends State<Home> {
               DrawerHeader(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       "Welcome ",
@@ -80,10 +85,11 @@ class _HomeState extends State<Home> {
                   ],
                 ),
                 decoration: BoxDecoration(
+                  color:Colors.black,
                   gradient: LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
-                    colors: [Colors.blue, Colors.indigo[800]],
+                    colors: [Colors.black, Colors.indigo[800]],
                   )
                 ),
               ),
@@ -156,7 +162,7 @@ class _HomeState extends State<Home> {
                       Container(
                         height: 70,
                         width: MediaQuery.of(context).size.width,
-                        color: Colors.lightBlue[500],
+                        color: Colors.white,
                       ),
                       filterOn?Container(
                         decoration: BoxDecoration(
@@ -189,7 +195,7 @@ class _HomeState extends State<Home> {
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                     borderSide: BorderSide(
-                                      color: Colors.blue[600],
+                                      color: Colors.black,
                                       width: 2.0,
                                     ),
                                   ),
@@ -226,7 +232,7 @@ class _HomeState extends State<Home> {
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                     borderSide: BorderSide(
-                                      color: Colors.blue[600],
+                                      color: Colors.black,
                                       width: 2.0,
                                     ),
                                   ),
@@ -261,7 +267,7 @@ class _HomeState extends State<Home> {
                               });
                             },
                             child: Icon(
-                              Icons.sort,color: Colors.white,
+                              Icons.sort,color: Colors.black,
                             ),
                           ),
                           flex: 2,
@@ -286,7 +292,7 @@ class _HomeState extends State<Home> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(25.0),
                                   borderSide: BorderSide(
-                                    color: Colors.blue[600],
+                                    color: Colors.white,
                                     width: 2.0,
                                   ),
                                 ),
@@ -304,7 +310,7 @@ class _HomeState extends State<Home> {
                                 shape : CircleBorder(),
                                 clipBehavior : Clip.hardEdge,
                                 child : Container(
-                                  color: Colors.blue[600],
+                                  color: Colors.black,
                                   width: 50,
                                   height: 50,
                                 ),
@@ -324,7 +330,7 @@ class _HomeState extends State<Home> {
                                     });},
                                     child: Container(
                                       color: Colors.transparent,
-                                      child: Icon(Icons.search,color: Colors.blue[600],size: 40,),
+                                      child: Icon(Icons.search,color: Colors.black,size: 40,),
                                     ) 
                                   ),
                                 ),
@@ -389,12 +395,14 @@ class _HomeState extends State<Home> {
         ],),   
         floatingActionButton: userprofileOn?null:chatScreenOn?null
         :aboutBookhubOn?null:FloatingActionButton(
+          backgroundColor:Colors.white,
           onPressed: ()async {
+            
             await Navigator.push(context, MaterialPageRoute(
             builder:(_)=>AddBook(books : DataBaseService().bookCollection,user : widget.user)
             ));
           },
-          child: Icon(Icons.add),
+          child: Icon(Icons.add,color:Colors.black),
         )
       );
   }

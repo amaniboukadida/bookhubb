@@ -4,7 +4,9 @@ import 'package:bookhub/models/message.dart';
 import 'package:bookhub/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:bookhub/models/Conversation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image/image.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
@@ -69,7 +71,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(conversation.user2userName,style: TextStyle(fontSize: 19,fontWeight: FontWeight.bold),),
+                        Text(conversation.user2userName,style: TextStyle(fontSize: 19,backgroundColor: Colors.transparent),),
                         Row(
                           children: [
                             Container(child: Text(conversation.lastMsg.data.length>18?conversation.lastMsg.data.substring(0,18)+"...":conversation.lastMsg.data, style: TextStyle(fontSize: 16),)),
@@ -88,7 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
           return Container(
             height: 70,
             padding: EdgeInsets.fromLTRB(0, 0, 0, 0), 
-            child : SpinKitRipple(color: Colors.blue,size: 50,)
+            child : SpinKitRipple(color: Colors.white,size: 50,)
           );
         }
       },
@@ -107,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> {
     .where("user2Id",isEqualTo: widget.user.uid)
     .get().then((value){
       value.docs.forEach((element) {
-        conversations.add(Conversation(userId: widget.user.uid,user2Id :element.get("user1Id"),lastMsgId :element.get("lastMsgId")));
+        conversations.add(Conversation(userId: widget.user.uid,user2Id :element.get("user1Id"),lastMsgId :element.get("lastMsgId"),));
       });
     });
     return "done";
@@ -128,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: conversations.map((e) => buildConversation(e)).toList()
           );
         }else{
-          return SpinKitCircle(color: Colors.indigo,);
+          return SpinKitCircle(color: Colors.white,);
         }
       }
     );

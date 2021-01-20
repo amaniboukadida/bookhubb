@@ -4,9 +4,9 @@ import 'package:bookhub/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-
 import 'models/user.dart';
 void main() {
+
   runApp(MyApp());
 }
 

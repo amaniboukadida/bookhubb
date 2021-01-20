@@ -22,7 +22,13 @@ class _SignInState extends State<SignIn> {
     return loading? Loading():Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('BookHub'),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: Text(
+          'BookHub',
+          style: TextStyle( color: Colors.black,fontSize:30 )
+          ),
+    
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
@@ -108,6 +114,7 @@ class _SignInState extends State<SignIn> {
                     ),
                   ),
                 ),
+
               ),
             ),
             SizedBox(height : 10),
@@ -115,12 +122,15 @@ class _SignInState extends State<SignIn> {
               height: 50, 
               padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
               child: RaisedButton(
-                textColor: Colors.white,
+                textColor: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25.0), 
                 ),
-                color: Colors.blue,
-                child: Text('Login'),
+                color: Colors.white,
+                child: Text(
+                  'Login',
+                  style: TextStyle(fontSize:18 )
+                  ),
                 onPressed: () async{
                   if(_formKey.currentState.validate()){
                     setState(() {

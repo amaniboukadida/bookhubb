@@ -1,5 +1,6 @@
 import 'package:bookhub/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -22,7 +23,10 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Edit profile"),
+        backgroundColor: Colors.white,
+        title: Text("Edit profile",
+        style: TextStyle(fontSize:18 ,color: Colors.black) ,),
+
       ),
       body: Form(
         key : _formKey,
@@ -47,8 +51,7 @@ class _EditProfileState extends State<EditProfile> {
                       },
                       obscureText: false,
                       decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white10,
+                       
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.0),
                         ),
@@ -101,9 +104,9 @@ class _EditProfileState extends State<EditProfile> {
                     height: 50,
                     width: 100,
                     child: FlatButton(
-                      textColor: Colors.white,
-                      color: Colors.blue,
-                      child: Text('Save'),
+                      textColor: Colors.black,
+                      color: Colors.white,
+                      child: Text('Save' ),
                       onPressed: (){
                         if(_formKey.currentState.validate()){
                           widget.users.doc((widget.user.uid)).update({"username":widget.username,"location":widget.location});

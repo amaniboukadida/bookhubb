@@ -54,7 +54,7 @@ class _ContactOwnerState extends State<ContactOwner> {
                 color: Colors.indigo,
                 borderRadius: BorderRadius.circular(15)
               ),
-              child: Text(msg.data,style: TextStyle(color: Colors.white,fontSize: 15),),
+              child: Text(msg.data,style: TextStyle(color: Colors.black,fontSize: 15),),
             ),
           ],
           ),
@@ -192,8 +192,9 @@ class _ContactOwnerState extends State<ContactOwner> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.indigo,
-        title: Text(ownerUserName),
+        backgroundColor: Colors.white,
+        title: Text(ownerUserName,
+        style: TextStyle( color:Colors.black)),
       ),
       body: Stack(
         children: [
@@ -227,7 +228,7 @@ class _ContactOwnerState extends State<ContactOwner> {
                                 Column(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: Colors.indigo,
+                                      backgroundColor: Colors.white,
                                       radius: 57,
                                       child: ownerImageUrl==""?
                                       CircleAvatar(
